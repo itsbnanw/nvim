@@ -2,11 +2,6 @@
 -- Ctrl+arrow motion, Shift-selection, and system-clipboard editing.
 -- Disable everything by commenting out `require("config.vscode")` in init.lua.
 
--- Options -------------------------------------------------------------------
-
-vim.opt.clipboard:append("unnamedplus")
-vim.opt.whichwrap:append("h,l")
-
 -- Insertmode emulation (ported from :h vim_diff) ------------------------------
 
 local augroup = vim.api.nvim_create_augroup("config.vscode", { clear = true })
