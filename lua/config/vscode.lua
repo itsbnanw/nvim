@@ -248,6 +248,13 @@ for _, map in ipairs({
   end)
 end
 
+-- Delete/Backspace with a selection removes it and resumes Insert like
+-- VSCode. "_d" keeps the text out of registers and the system clipboard
+-- (Delete is not Cut); <Cmd>startinsert returns to Insert at the deletion
+-- point, same pattern as <C-x> above.
+vim.keymap.set("v", "<Del>", '"_d<Cmd>startinsert<CR>')
+vim.keymap.set("v", "<BS>", '"_d<Cmd>startinsert<CR>')
+
 -- Editor keys -----------------------------------------------------------------
 
 vim.keymap.set({ "i", "n" }, "<C-s>", "<Cmd>w<CR>")
