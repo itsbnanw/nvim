@@ -116,6 +116,34 @@ vim.keymap.set("i", "<S-Right>", function()
   select_from_insert("l")
 end)
 
+-- Plain cursor keys collapse the selection and resume Insert (VSCode: an
+-- unshifted arrow ends the selection and keeps you typing). "v" covers
+-- Visual+Select; <Esc> leaves either to Normal, the motion moves, and the
+-- scheduled startinsert returns to Insert.
+local function collapse_select(motion)
+  vim.api.nvim_feedkeys(
+    vim.api.nvim_replace_termcodes("<Esc>" .. motion, true, true, true),
+    "n",
+    false
+  )
+  vim.schedule(function()
+    vim.cmd.startinsert()
+  end)
+end
+
+for _, map in ipairs({
+  { "<Right>", "l" },
+  { "<Left>", "h" },
+  { "<Down>", "j" },
+  { "<Up>", "k" },
+  { "<End>", "$" },
+  { "<Home>", "0" },
+}) do
+  vim.keymap.set("v", map[1], function()
+    collapse_select(map[2])
+  end)
+end
+
 -- Editor keys -----------------------------------------------------------------
 
 vim.keymap.set({ "i", "n" }, "<C-s>", "<Cmd>w<CR>")
