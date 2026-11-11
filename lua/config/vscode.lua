@@ -108,6 +108,39 @@ vim.keymap.set("v", "<S-Home>", "0")
 -- back onto the last char so only line content is selected.
 vim.keymap.set("v", "<S-End>", "$h")
 
+-- <S-PageUp>/<S-PageDown> extend the selection by a page like VSCode.
+-- "Page" is the window height minus two (same as <PageDown>), but
+-- <C-f>/<PageDown> only scroll in Visual mode, so j/k repeats move the
+-- cursor instead and keep the column. String rhs cannot compute the
+-- count, so these are Lua callbacks that toggle Select->Visual (<C-g>),
+-- feed the repeats, and toggle back.
+local function extend_page(down)
+  -- Deferred like ensure_select: feedkeys "nx" only behaves inside a
+  -- scheduled callback, not directly in a mapping.
+  vim.schedule(function()
+    local n = math.max(1, vim.api.nvim_win_get_height(0) - 2)
+    local keys = down and string.rep("j", n) or string.rep("k", n)
+    local mode = vim.api.nvim_get_mode().mode
+    local tc = vim.api.nvim_replace_termcodes
+    local in_select = mode == "s" or mode == "S"
+    if in_select then
+      vim.api.nvim_feedkeys(tc("<C-g>", true, true, true), "nx", false)
+    end
+    vim.api.nvim_feedkeys(keys, "nx", false)
+    if in_select then
+      vim.api.nvim_feedkeys(tc("<C-g>", true, true, true), "nx", false)
+    end
+    ensure_select()
+  end)
+end
+
+vim.keymap.set("v", "<S-PageDown>", function()
+  extend_page(true)
+end)
+vim.keymap.set("v", "<S-PageUp>", function()
+  extend_page(false)
+end)
+
 -- Same, started from Insert mode: leave Insert, select via Visual, convert
 -- to Select. The <Esc> goes through "m" (remap) so the safe insert-<Esc>
 -- mapping above cancels any completion popup first. Esc steps the cursor
@@ -128,7 +161,9 @@ local function select_from_insert(pre, motion)
     elseif col == 0 then
       pre = pre:sub(2)
     end
-  elseif col == 0 then
+  elseif col == 0 and (motion == "" or motion:match("^[b0h]")) then
+    -- Line-local leftward motions have nothing to select at column 0;
+    -- motions that leave the line (k, j, gg, G, |, ...) still work.
     return
   end
   vim.api.nvim_feedkeys(
@@ -178,6 +213,21 @@ vim.keymap.set("i", "<S-Down>", function()
   select_from_insert("l", "jh")
 end)
 
+-- <S-PageUp>/<S-PageDown> from Insert: same page-sized motions as the
+-- extension maps, through the usual select_from_insert path. "l"/""
+-- pre and the trailing adjuster mirror <S-Down>/<S-Up>.
+local function page_motion(down)
+  local n = math.max(1, vim.api.nvim_win_get_height(0) - 2)
+  return down and (string.rep("j", n) .. "h") or (string.rep("k", n) .. "l")
+end
+
+vim.keymap.set("i", "<S-PageDown>", function()
+  select_from_insert("l", page_motion(true))
+end)
+vim.keymap.set("i", "<S-PageUp>", function()
+  select_from_insert("", page_motion(false))
+end)
+
 -- Same selections started from Normal mode: enter Insert at the cursor
 -- first, so Normal-mode Shift+arrows behave exactly like the Insert path
 -- (previously "v{motion}" anchored on the cursor char, adding one extra
@@ -216,6 +266,12 @@ vim.keymap.set("n", "<S-Home>", function()
 end)
 vim.keymap.set("n", "<S-End>", function()
   select_from_normal("l", "$h")
+end)
+vim.keymap.set("n", "<S-PageDown>", function()
+  select_from_normal("l", page_motion(true))
+end)
+vim.keymap.set("n", "<S-PageUp>", function()
+  select_from_normal("", page_motion(false))
 end)
 
 -- Plain cursor keys collapse the selection and resume Insert (VSCode: an
