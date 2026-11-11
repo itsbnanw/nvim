@@ -1,0 +1,9 @@
+*.swp
+*.swo
+*~
+*.un~
+.netrwhist
+tags
+tags-*
+Session*
+*.log
