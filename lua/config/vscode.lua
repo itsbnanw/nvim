@@ -108,7 +108,10 @@ vim.keymap.set("v", "<S-Right>", "l")
 vim.keymap.set("v", "<S-Up>", "k")
 vim.keymap.set("v", "<S-Down>", "j")
 vim.keymap.set("v", "<S-Home>", "0")
-vim.keymap.set("v", "<S-End>", "$")
+-- "$h" not "$": in Visual mode "$" leaves the cursor one past the last
+-- char and the inclusive selection swallows the line break; "h" steps
+-- back onto the last char so only line content is selected.
+vim.keymap.set("v", "<S-End>", "$h")
 
 -- Same, started from Insert mode: leave Insert, select via Visual, convert
 -- to Select. The <Esc> goes through "m" (remap) so the safe insert-<Esc>
@@ -168,7 +171,7 @@ vim.keymap.set("i", "<S-Home>", function()
   select_from_insert("", "0")
 end)
 vim.keymap.set("i", "<S-End>", function()
-  select_from_insert("l", "$")
+  select_from_insert("l", "$h")
 end)
 -- Vertical selections keep the caret column: anchor on the char left of the
 -- caret, move up a line, then step right onto the caret column. "vkl" also
@@ -217,7 +220,7 @@ vim.keymap.set("n", "<S-Home>", function()
   select_from_normal("", "0")
 end)
 vim.keymap.set("n", "<S-End>", function()
-  select_from_normal("l", "$")
+  select_from_normal("l", "$h")
 end)
 
 -- Plain cursor keys collapse the selection and resume Insert (VSCode: an
