@@ -89,31 +89,40 @@ vim.keymap.set("v", "<S-Right>", "l")
 
 -- Same, started from Insert mode: leave Insert, select via Visual, convert
 -- to Select. The <Esc> goes through "m" (remap) so the safe insert-<Esc>
--- mapping above cancels any completion popup first.
-local function select_from_insert(motion)
+-- mapping above cancels any completion popup first. Esc steps the cursor
+-- back onto the char left of the caret, so rightward selections take a
+-- leading "l" to anchor on the char right of the caret; "w" is paired with
+-- "h" so the selection stops before the next word's first char.
+local function select_from_insert(pre, motion)
   vim.api.nvim_feedkeys(
     vim.api.nvim_replace_termcodes("<Esc>", true, true, true),
     "m",
     false
   )
   vim.api.nvim_feedkeys(
-    vim.api.nvim_replace_termcodes("v" .. motion .. "<C-g>", true, true, true),
+    vim.api.nvim_replace_termcodes(pre .. "v" .. motion .. "<C-g>", true, true, true),
     "n",
     false
   )
 end
 
 vim.keymap.set("i", "<C-S-Left>", function()
-  select_from_insert("b")
+  select_from_insert("", "b")
 end)
 vim.keymap.set("i", "<C-S-Right>", function()
-  select_from_insert("w")
+  select_from_insert("l", "wh")
+end)
+vim.keymap.set("i", "<C-S-Home>", function()
+  select_from_insert("", "gg")
+end)
+vim.keymap.set("i", "<C-S-End>", function()
+  select_from_insert("l", "G")
 end)
 vim.keymap.set("i", "<S-Left>", function()
-  select_from_insert("h")
+  select_from_insert("", "")
 end)
 vim.keymap.set("i", "<S-Right>", function()
-  select_from_insert("l")
+  select_from_insert("l", "")
 end)
 
 -- Plain cursor keys collapse the selection and resume Insert (VSCode: an
