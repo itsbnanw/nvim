@@ -243,13 +243,23 @@ for _, map in ipairs({
   { "<Left>", "h" },
   { "<Down>", "j" },
   { "<Up>", "k" },
-  { "<End>", "$" },
   { "<Home>", "0" },
 }) do
   vim.keymap.set("v", map[1], function()
     collapse_select(map[2])
   end)
 end
+
+-- <End> is special: "$" leaves the Normal cursor on the last char and
+-- startinsert ("i") would park the caret one char short of EOL. "a"
+-- appends after the last char instead, matching the Insert-mode <End>.
+vim.keymap.set("v", "<End>", function()
+  vim.api.nvim_feedkeys(
+    vim.api.nvim_replace_termcodes("<Esc>$a", true, true, true),
+    "n",
+    false
+  )
+end)
 
 -- Delete/Backspace with a selection removes it and resumes Insert like
 -- VSCode. "_d" keeps the text out of registers and the system clipboard
