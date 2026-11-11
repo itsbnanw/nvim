@@ -117,6 +117,22 @@ vim.keymap.set("v", "<S-End>", "$")
 -- leading "l" to anchor on the char right of the caret; "w" is paired with
 -- "h" so the selection stops before the next word's first char.
 local function select_from_insert(pre, motion)
+  -- Esc lands the cursor on the char left of the caret, except at column 0
+  -- where it cannot step back and stays on the first char. A leading "l"
+  -- compensates for the step-back, so it must be dropped at column 0 and
+  -- rightward selections abort at end of line ("l" would wrap to the next
+  -- line via 'whichwrap').
+  local col = vim.api.nvim_win_get_cursor(0)[2]
+  local linelen = #vim.api.nvim_get_current_line()
+  if pre:sub(1, 1) == "l" then
+    if col >= linelen then
+      return
+    elseif col == 0 then
+      pre = pre:sub(2)
+    end
+  elseif col == 0 then
+    return
+  end
   vim.api.nvim_feedkeys(
     vim.api.nvim_replace_termcodes("<Esc>", true, true, true),
     "m",
