@@ -56,10 +56,13 @@ end)
 if vim.fn.maparg("<C-c>", "s") ~= "" then
   vim.keymap.del("s", "<C-c>")
 end
-vim.keymap.set("v", "<C-c>", '"+y<Cmd>startinsert!<CR>')
-vim.keymap.set("v", "<C-x>", '"+d<Cmd>startinsert!<CR>')
+-- Copy keeps the selection like VSCode: yank, gv reselects the same area,
+-- <C-g> converts back to Select mode.
+vim.keymap.set("v", "<C-c>", '"+ygv<C-g>')
+vim.keymap.set("v", "<C-x>", '"+d<Cmd>startinsert<CR>')
 vim.keymap.set("i", "<C-v>", "<C-r>+")
-vim.keymap.set({ "n", "v" }, "<C-v>", '"+p<Cmd>startinsert!<CR>')
+vim.keymap.set("n", "<C-v>", '"+gp<Cmd>startinsert<CR>')
+vim.keymap.set("v", "<C-v>", '"+pa')
 
 -- Word motion and selection ---------------------------------------------------
 
