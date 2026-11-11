@@ -72,18 +72,30 @@ for _, mode in ipairs({ "n", "v" }) do
   vim.keymap.set(mode, "<C-Right>", "w")
 end
 
--- Shift+arrows in Normal: start a Select-mode selection (v + motion + <C-g>
--- converts Visual to Select, giving type-over-selection like VSCode).
-vim.keymap.set("n", "<C-S-Left>", "vb<C-g>")
-vim.keymap.set("n", "<C-S-Right>", "vw<C-g>")
-vim.keymap.set("n", "<S-Left>", "vh<C-g>")
-vim.keymap.set("n", "<S-Right>", "vl<C-g>")
-vim.keymap.set("n", "<C-S-Home>", "vgg<C-g>")
-vim.keymap.set("n", "<C-S-End>", "vG<C-g>")
-vim.keymap.set("n", "<S-Up>", "vk<C-g>")
-vim.keymap.set("n", "<S-Down>", "vj<C-g>")
-vim.keymap.set("n", "<S-Home>", "v0<C-g>")
-vim.keymap.set("n", "<S-End>", "v$<C-g>")
+-- Failed motions (e.g. j on the last line) beep and abort the rest of a fed
+-- typeahead. If that happens after "v" but before "<C-g>", or aborts the
+-- auto-switch back from Select, the selection is stranded in Visual mode
+-- where typing runs Vim commands instead of replacing the selection. This
+-- scheduled check converts it back to Select. ModeChanged "s:v" catches the
+-- Select->Visual extension case; select_from_insert calls it directly.
+local function ensure_select()
+  vim.schedule(function()
+    local mode = vim.api.nvim_get_mode().mode
+    if mode == "v" or mode == "V" or mode == "\22" then
+      vim.api.nvim_feedkeys(
+        vim.api.nvim_replace_termcodes("<C-g>", true, true, true),
+        "nx",
+        false
+      )
+    end
+  end)
+end
+
+vim.api.nvim_create_autocmd("ModeChanged", {
+  group = augroup,
+  pattern = "s:v",
+  callback = ensure_select,
+})
 
 -- Shift(+Ctrl)+arrows in Visual/Select: extend the selection. "v" mappings
 -- also cover Select mode (auto-switch to Visual for the motion, then back).
@@ -115,6 +127,7 @@ local function select_from_insert(pre, motion)
     "n",
     false
   )
+  ensure_select()
 end
 
 vim.keymap.set("i", "<C-S-Left>", function()
@@ -141,14 +154,54 @@ end)
 vim.keymap.set("i", "<S-End>", function()
   select_from_insert("l", "$")
 end)
--- Vertical selections keep the caret column: position at the char right of
--- the caret first ("l"), move across the line break in Normal mode for Up
--- ("k"), then extend with j and trim the extra char with h.
+-- Vertical selections keep the caret column: anchor on the char left of the
+-- caret, move up a line, then step right onto the caret column. "vkl" also
+-- degrades gracefully on the first line (k fails, l still selects).
 vim.keymap.set("i", "<S-Up>", function()
-  select_from_insert("lk", "jh")
+  select_from_insert("", "kl")
 end)
 vim.keymap.set("i", "<S-Down>", function()
   select_from_insert("l", "jh")
+end)
+
+-- Same selections started from Normal mode: enter Insert at the cursor
+-- first, so Normal-mode Shift+arrows behave exactly like the Insert path
+-- (previously "v{motion}" anchored on the cursor char, adding one extra
+-- character on the left of every selection).
+local function select_from_normal(pre, motion)
+  vim.api.nvim_feedkeys("i", "n", false)
+  select_from_insert(pre, motion)
+end
+
+vim.keymap.set("n", "<C-S-Left>", function()
+  select_from_normal("", "b")
+end)
+vim.keymap.set("n", "<C-S-Right>", function()
+  select_from_normal("l", "wh")
+end)
+vim.keymap.set("n", "<C-S-Home>", function()
+  select_from_normal("", "gg")
+end)
+vim.keymap.set("n", "<C-S-End>", function()
+  select_from_normal("l", "G")
+end)
+vim.keymap.set("n", "<S-Left>", function()
+  select_from_normal("", "")
+end)
+vim.keymap.set("n", "<S-Right>", function()
+  select_from_normal("l", "")
+end)
+vim.keymap.set("n", "<S-Up>", function()
+  select_from_normal("", "kl")
+end)
+vim.keymap.set("n", "<S-Down>", function()
+  select_from_normal("l", "jh")
+end)
+vim.keymap.set("n", "<S-Home>", function()
+  select_from_normal("", "0")
+end)
+vim.keymap.set("n", "<S-End>", function()
+  select_from_normal("l", "$")
 end)
 
 -- Plain cursor keys collapse the selection and resume Insert (VSCode: an
