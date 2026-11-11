@@ -80,6 +80,10 @@ vim.keymap.set("n", "<S-Left>", "vh<C-g>")
 vim.keymap.set("n", "<S-Right>", "vl<C-g>")
 vim.keymap.set("n", "<C-S-Home>", "vgg<C-g>")
 vim.keymap.set("n", "<C-S-End>", "vG<C-g>")
+vim.keymap.set("n", "<S-Up>", "vk<C-g>")
+vim.keymap.set("n", "<S-Down>", "vj<C-g>")
+vim.keymap.set("n", "<S-Home>", "v0<C-g>")
+vim.keymap.set("n", "<S-End>", "v$<C-g>")
 
 -- Shift(+Ctrl)+arrows in Visual/Select: extend the selection. "v" mappings
 -- also cover Select mode (auto-switch to Visual for the motion, then back).
@@ -89,6 +93,10 @@ vim.keymap.set("v", "<C-S-Home>", "gg")
 vim.keymap.set("v", "<C-S-End>", "G")
 vim.keymap.set("v", "<S-Left>", "h")
 vim.keymap.set("v", "<S-Right>", "l")
+vim.keymap.set("v", "<S-Up>", "k")
+vim.keymap.set("v", "<S-Down>", "j")
+vim.keymap.set("v", "<S-Home>", "0")
+vim.keymap.set("v", "<S-End>", "$")
 
 -- Same, started from Insert mode: leave Insert, select via Visual, convert
 -- to Select. The <Esc> goes through "m" (remap) so the safe insert-<Esc>
@@ -126,6 +134,21 @@ vim.keymap.set("i", "<S-Left>", function()
 end)
 vim.keymap.set("i", "<S-Right>", function()
   select_from_insert("l", "")
+end)
+vim.keymap.set("i", "<S-Home>", function()
+  select_from_insert("", "0")
+end)
+vim.keymap.set("i", "<S-End>", function()
+  select_from_insert("l", "$")
+end)
+-- Vertical selections keep the caret column: position at the char right of
+-- the caret first ("l"), move across the line break in Normal mode for Up
+-- ("k"), then extend with j and trim the extra char with h.
+vim.keymap.set("i", "<S-Up>", function()
+  select_from_insert("lk", "jh")
+end)
+vim.keymap.set("i", "<S-Down>", function()
+  select_from_insert("l", "jh")
 end)
 
 -- Plain cursor keys collapse the selection and resume Insert (VSCode: an
