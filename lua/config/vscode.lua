@@ -16,6 +16,10 @@ local function is_editable_buffer(buf)
   if vim.bo[buf].buftype ~= "" then
     return false
   end
+  local name = vim.api.nvim_buf_get_name(buf)
+  if name ~= "" and vim.fn.isdirectory(name) == 1 then
+    return false
+  end
   return not vim.bo[buf].filetype:match("^minifiles")
 end
 
