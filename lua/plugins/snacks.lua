@@ -22,6 +22,4 @@ require("snacks").setup({
   },
   -- Auto-disable heavy features (syntax, folds, plugins) on huge files.
   bigfile = {},
-  -- Nicer vim.ui.input/select dialogs.
-  input = {},
 })
