@@ -2,6 +2,8 @@ vim.loader.enable()
 
 require("config.options")
 require("config.vscode")
+require("plugins.autopairs")
 require("plugins.bufferline")
+require("plugins.gitsigns")
 require("plugins.lualine")
 require("plugins.nvim-tree")
