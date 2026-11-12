@@ -1,8 +1,12 @@
 {
   "plugins": {
-    "mini.nvim": {
-      "rev": "f9ac12d7cbd2563cfc2cce9a8152fc8df2ad0d6f",
-      "src": "https://github.com/echasnovski/mini.nvim"
+    "nvim-tree.lua": {
+      "rev": "5cc8d425c2bf3c09041a2db3cfff6197e2dce34d",
+      "src": "https://github.com/nvim-tree/nvim-tree.lua"
+    },
+    "nvim-web-devicons": {
+      "rev": "0dc0cfb0c6858041174a53c7aa4adaf65e994b3c",
+      "src": "https://github.com/nvim-tree/nvim-web-devicons"
     }
   }
 }
