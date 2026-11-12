@@ -19,6 +19,14 @@ local function is_editable_buffer(buf)
   return not vim.bo[buf].filetype:match("^minifiles")
 end
 
+-- Untitled buffers with no content ([No Name] at startup, :enew) start in
+-- Normal mode; anything with a name or text gets the always-insert treatment.
+local function is_blank_scratch(buf)
+  return vim.fn.bufname(buf) == ""
+    and vim.api.nvim_buf_line_count(buf) == 1
+    and vim.api.nvim_buf_get_lines(buf, 0, 1, true)[1] == ""
+end
+
 -- :bdelete on the displayed buffer lets Vim auto-pick a replacement for the
 -- window; with nvim-tree's bufhidden=wipe sidebar buffer present that pick can
 -- close the whole window. Point the window at a replacement first, then
@@ -57,7 +65,9 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
     local buf = ev.buf or vim.api.nvim_get_current_buf()
     if is_editable_buffer(buf) then
       setup_buffer_maps(buf)
-      vim.cmd.startinsert()
+      if not is_blank_scratch(buf) then
+        vim.cmd.startinsert()
+      end
     else
       -- UI buffers (explorer, help, ...) stay in Normal mode where their
       -- own navigation mappings work; this also drops Insert when the
