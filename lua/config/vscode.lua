@@ -227,6 +227,29 @@ local function goto_line()
   end
 end
 
+local function nvim_tree_visible()
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    if vim.bo[vim.api.nvim_win_get_buf(win)].filetype == "NvimTree" then
+      return true
+    end
+  end
+  return false
+end
+
+-- Normal-mode Ctrl+arrows switch panes directionally while the NvimTree
+-- sidebar is open; otherwise Left/Right fall back to word motion and
+-- Up/Down do nothing (they had no mapping before). Insert mode keeps its
+-- built-in word-wise Ctrl+arrows.
+local function pane_or_word(dir, fallback)
+  return function()
+    if nvim_tree_visible() then
+      vim.cmd("wincmd " .. dir)
+    elseif fallback then
+      vim.api.nvim_feedkeys(fallback, "n", false)
+    end
+  end
+end
+
 -- Keymaps ---------------------------------------------------------------------
 -- Registered buffer-locally per editable buffer by the BufWinEnter autocmd
 -- above, so UI buffers keep their native mappings.
@@ -256,12 +279,15 @@ setup_buffer_maps = function(buf)
   set("n", "<C-v>", '"+gp<Cmd>startinsert<CR>')
   set("v", "<C-v>", '"+pa')
 
-  -- Ctrl+arrows: word-wise motion in Normal/Visual/Select (Insert is
-  -- built-in).
-  for _, mode in ipairs({ "n", "v" }) do
-    set(mode, "<C-Left>", "b")
-    set(mode, "<C-Right>", "w")
-  end
+  -- Ctrl+arrows: word-wise motion in Visual/Select (Insert is built-in).
+  set("v", "<C-Left>", "b")
+  set("v", "<C-Right>", "w")
+
+  -- Normal mode: pane switching while NvimTree is open (see pane_or_word).
+  set("n", "<C-Left>", pane_or_word("h", "b"))
+  set("n", "<C-Right>", pane_or_word("l", "w"))
+  set("n", "<C-Up>", pane_or_word("k"))
+  set("n", "<C-Down>", pane_or_word("j"))
 
   -- Shift(+Ctrl)+arrows in Visual/Select: extend the selection. "v"
   -- mappings also cover Select mode (auto-switch to Visual for the motion,

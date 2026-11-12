@@ -22,3 +22,22 @@ require("nvim-tree").setup({
 vim.keymap.set({ "n", "i", "v" }, "<C-b>", function()
   require("nvim-tree.api").tree.toggle()
 end)
+
+-- Pane switching from the tree itself: the buffer is exempt from the
+-- VSCode emulation, so give it the same directional Ctrl+arrow window
+-- navigation the editable buffers get while the sidebar is open.
+vim.api.nvim_create_augroup("plugins.nvim-tree", { clear = true })
+vim.api.nvim_create_autocmd("FileType", {
+  group = "plugins.nvim-tree",
+  pattern = "NvimTree",
+  callback = function(ev)
+    for _, map in ipairs({
+      { "<C-Left>", "h" },
+      { "<C-Right>", "l" },
+      { "<C-Up>", "k" },
+      { "<C-Down>", "j" },
+    }) do
+      vim.keymap.set("n", map[1], "<C-w>" .. map[2], { buffer = ev.buf })
+    end
+  end,
+})
