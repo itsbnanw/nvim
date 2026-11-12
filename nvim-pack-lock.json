@@ -16,6 +16,10 @@
       "rev": "3172f40c16563db871a58f20d205c710ad782311",
       "src": "https://github.com/windwp/nvim-autopairs"
     },
+    "nvim-scrollbar": {
+      "rev": "00fe857e7cd97ee5e556de643ee920b003a96b03",
+      "src": "https://github.com/petertriho/nvim-scrollbar"
+    },
     "nvim-tree.lua": {
       "rev": "5cc8d425c2bf3c09041a2db3cfff6197e2dce34d",
       "src": "https://github.com/nvim-tree/nvim-tree.lua"
@@ -27,6 +31,14 @@
     "plenary.nvim": {
       "rev": "74b06c6c75e4eeb3108ec01852001636d85a932b",
       "src": "https://github.com/nvim-lua/plenary.nvim"
+    },
+    "project.nvim": {
+      "rev": "8c6bad7d22eef1b71144b401c9f74ed01526a4fb",
+      "src": "https://github.com/ahmedkhalf/project.nvim"
+    },
+    "smear-cursor.nvim": {
+      "rev": "f6cb57c342268177f719acc3968b9d8de3ecc969",
+      "src": "https://github.com/sphamba/smear-cursor.nvim"
     },
     "solarized-osaka.nvim": {
       "rev": "a21176efde15fab21fabda0bf2ba123ed6d7332d",
