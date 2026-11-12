@@ -7,7 +7,6 @@ vim.opt.splitright = true
 vim.opt.splitbelow = true
 vim.opt.scrolloff = 8
 vim.opt.sidescrolloff = 8
-vim.opt.smoothscroll = true
 vim.opt.undofile = true
 vim.opt.switchbuf = "useopen,uselast"
 vim.opt.timeoutlen = 300 -- keeps mapped prefix keys (e.g. <C-w> close) snappy

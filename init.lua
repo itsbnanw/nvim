@@ -12,6 +12,7 @@ require("plugins.telescope")
 require("plugins.smoothcursor")
 require("plugins.scrollbar")
 require("plugins.project")
+require("plugins.snacks")
 
 -- <C-q> quits all windows and exits, like closing the editor. :confirm
 -- makes unsaved buffers offer to save first.

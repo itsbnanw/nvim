@@ -40,6 +40,10 @@
       "rev": "f6cb57c342268177f719acc3968b9d8de3ecc969",
       "src": "https://github.com/sphamba/smear-cursor.nvim"
     },
+    "snacks.nvim": {
+      "rev": "882c996cf28183f4d63640de0b4c02ec886d01f2",
+      "src": "https://github.com/folke/snacks.nvim"
+    },
     "solarized-osaka.nvim": {
       "rev": "a21176efde15fab21fabda0bf2ba123ed6d7332d",
       "src": "https://github.com/craftzdog/solarized-osaka.nvim"
