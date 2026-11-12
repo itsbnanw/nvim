@@ -183,8 +183,8 @@ local function extend_page(down)
 end
 
 -- Same, started from Insert mode: leave Insert, select via Visual, convert
--- to Select. The <Esc> goes through "m" (remap) so the safe insert-<Esc>
--- mapping above cancels any completion popup first. Esc steps the cursor
+-- to Select. Cancel completion and leave Insert explicitly: the user-facing
+-- Esc may only dismiss the completion menu. Esc steps the cursor
 -- back onto the char left of the caret, so rightward selections take a
 -- leading "l" to anchor on the char right of the caret; "w" is paired with
 -- "h" so the selection stops before the next word's first char.
@@ -208,8 +208,8 @@ local function select_from_insert(pre, motion)
     return
   end
   vim.api.nvim_feedkeys(
-    vim.api.nvim_replace_termcodes("<Esc>", true, true, true),
-    "m",
+    vim.api.nvim_replace_termcodes("<C-X><C-Z><C-[>", true, true, true),
+    "n",
     false
   )
   vim.api.nvim_feedkeys(
@@ -536,4 +536,7 @@ setup_buffer_maps = function(buf)
   set("v", "<M-Left>", "b")
   set("i", "<M-Right>", "<C-Right>")
   set("i", "<M-Left>", "<C-Left>")
+
+  -- Keep completion's buffer-local Enter mapping after the editor maps are rebuilt.
+  require("config.completion").setup(buf)
 end

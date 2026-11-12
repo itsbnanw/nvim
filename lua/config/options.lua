@@ -28,6 +28,8 @@ vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 4
 
 -- Completion and wildmenu
+vim.opt.autocompletedelay = 120 -- native completion: avoid opening on every keystroke
+vim.opt.pumheight = 10 -- keep remaining completion candidates scrollable
 vim.opt.completeopt:append("menuone")
 vim.opt.completeopt:append("noselect")
 vim.opt.completeopt:append("popup")
