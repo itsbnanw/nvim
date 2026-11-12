@@ -2,6 +2,7 @@ vim.loader.enable()
 
 require("config.options")
 require("config.vscode")
+require("plugins.colorscheme")
 require("plugins.autopairs")
 require("plugins.bufferline")
 require("plugins.gitsigns")
