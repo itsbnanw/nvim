@@ -9,6 +9,7 @@ require("plugins.gitsigns")
 require("plugins.lualine")
 require("plugins.nvim-tree")
 require("plugins.telescope")
+require("plugins.smoothcursor")
 
 -- <C-q> quits all windows and exits, like closing the editor. :confirm
 -- makes unsaved buffers offer to save first.
