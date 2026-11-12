@@ -9,7 +9,20 @@ local augroup = vim.api.nvim_create_augroup("config.vscode", { clear = true })
 vim.api.nvim_create_autocmd("BufWinEnter", {
   group = augroup,
   callback = function()
+    -- File-explorer buffers are UI, not files to edit: leave them in
+    -- Normal mode where mini.files' navigation mappings live.
+    if vim.bo.filetype:match("^minifiles") then
+      return
+    end
     vim.cmd.startinsert()
+  end,
+})
+
+vim.api.nvim_create_autocmd("FileType", {
+  group = augroup,
+  pattern = "minifiles*",
+  callback = function()
+    vim.cmd.stopinsert()
   end,
 })
 
@@ -33,6 +46,9 @@ vim.keymap.set("i", "<C-\\><C-G>", "<C-X><C-Z>")
 
 vim.on_key(function(key)
   if key ~= "\27" then
+    return
+  end
+  if vim.bo.filetype:match("^minifiles") then
     return
   end
   local mode = vim.api.nvim_get_mode().mode
