@@ -4,12 +4,8 @@
 
 vim.pack.add({ "https://github.com/nvim-lualine/lualine.nvim" })
 
--- Defaults mirror the VSCode status bar: branch, diff, diagnostics |
--- filename | filetype/encoding | position. lualine_a is emptied to drop
--- the mode indicator (always-insert makes it noise).
+-- Defaults already mirror the VSCode status bar: mode, branch, diff,
+-- diagnostics | filename | filetype/encoding | position.
 require("lualine").setup({
   options = { theme = "auto" },
-  sections = {
-    lualine_a = {},
-  },
 })

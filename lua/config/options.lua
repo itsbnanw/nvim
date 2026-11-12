@@ -35,6 +35,7 @@ vim.opt.wildmode = "longest:full,full"
 
 -- Display
 vim.opt.termguicolors = true
+vim.opt.showmode = false -- lualine shows the mode instead
 vim.opt.cursorline = true
 vim.opt.listchars = {
   tab = "» ",
