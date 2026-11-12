@@ -10,6 +10,7 @@ vim.opt.sidescrolloff = 8
 vim.opt.smoothscroll = true
 vim.opt.undofile = true
 vim.opt.switchbuf = "useopen,uselast"
+vim.opt.timeoutlen = 300 -- keeps mapped prefix keys (e.g. <C-w> close) snappy
 vim.opt.shortmess:append("I")
 vim.opt.clipboard:append("unnamedplus")
 vim.opt.whichwrap:append("h,l")

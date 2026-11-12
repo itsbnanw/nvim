@@ -456,6 +456,10 @@ setup_buffer_maps = function(buf)
 
   -- Editor keys ---------------------------------------------------------------
 
+  -- <C-w> closes the buffer like VSCode's Ctrl+W. This shadows Vim's
+  -- window-command prefix (<C-w>w/q/s), an accepted tradeoff; pane
+  -- switching uses Ctrl+arrows instead.
+  set({ "n", "i", "v" }, "<C-w>", "<Cmd>bdelete<CR>")
   set({ "i", "n" }, "<C-s>", "<Cmd>w<CR>")
   set("i", "<C-z>", "<C-o>u")
   set("n", "<C-z>", "u")
