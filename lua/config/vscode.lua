@@ -33,6 +33,15 @@ vim.api.nvim_create_autocmd("BufWinEnter", {
       -- own navigation mappings work; this also drops Insert when the
       -- explorer is opened from an editing buffer.
       vim.cmd.stopinsert()
+      -- <C-w> is Vim's window-command prefix in Normal/Visual mode; with no
+      -- map it arms silently and the next keypress becomes a window command
+      -- (q/c close windows). Guard it: side panels jump back to the editor,
+      -- prompt buffers (telescope) close like <C-c>. Terminal keeps native
+      -- <C-w> (^W word-delete to the pty); Insert-mode <C-w> stays builtin.
+      if vim.bo[buf].buftype ~= "terminal" then
+        local rhs = vim.bo[buf].buftype == "prompt" and "<C-c>" or "<Cmd>wincmd p<CR>"
+        vim.keymap.set({ "n", "v" }, "<C-w>", rhs, { buffer = buf })
+      end
     end
   end,
 })
