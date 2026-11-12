@@ -1,6 +1,7 @@
 -- Behavior
 vim.opt.number = true
 vim.opt.relativenumber = true
+vim.opt.signcolumn = "yes" -- reserve gutter space for git signs and diagnostics
 vim.opt.mouse = "a"
 vim.opt.confirm = true
 vim.opt.splitright = true
