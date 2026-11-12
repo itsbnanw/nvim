@@ -22,8 +22,6 @@ require("snacks").setup({
   },
   -- Auto-disable heavy features (syntax, folds, plugins) on huge files.
   bigfile = {},
-  -- Nicer :terminal windows (winbar title, split/floating behavior).
-  terminal = {},
   -- Nicer vim.ui.input/select dialogs.
   input = {},
 })
