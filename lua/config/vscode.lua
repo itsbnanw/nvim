@@ -19,6 +19,36 @@ local function is_editable_buffer(buf)
   return not vim.bo[buf].filetype:match("^minifiles")
 end
 
+-- :bdelete on the displayed buffer lets Vim auto-pick a replacement for the
+-- window; with nvim-tree's bufhidden=wipe sidebar buffer present that pick can
+-- close the whole window. Point the window at a replacement first, then
+-- delete by number — the window keeps showing the alternate buffer.
+local function close_current_buffer()
+  local buf = vim.api.nvim_get_current_buf()
+  local alt = vim.fn.bufnr("#")
+  local function usable(b)
+    return b > 0 and b ~= buf and vim.api.nvim_buf_is_valid(b)
+      and vim.bo[b].buflisted and vim.bo[b].buftype == ""
+  end
+  if not usable(alt) then
+    local before, after
+    for _, b in ipairs(vim.api.nvim_list_bufs()) do
+      if usable(b) then
+        if b < buf and (not before or b > before) then
+          before = b
+        elseif b > buf and (not after or b < after) then
+          after = b
+        end
+      end
+    end
+    alt = before or after or 0
+  end
+  if alt > 0 then
+    vim.api.nvim_win_set_buf(0, alt)
+  end
+  vim.cmd("bdelete " .. buf)
+end
+
 local setup_buffer_maps
 
 vim.api.nvim_create_autocmd("BufWinEnter", {
@@ -468,7 +498,7 @@ setup_buffer_maps = function(buf)
   -- <C-w> closes the buffer like VSCode's Ctrl+W. This shadows Vim's
   -- window-command prefix (<C-w>w/q/s), an accepted tradeoff; pane
   -- switching uses Ctrl+arrows instead.
-  set({ "n", "i", "v" }, "<C-w>", "<Cmd>bdelete<CR>")
+  set({ "n", "i", "v" }, "<C-w>", close_current_buffer)
   set({ "i", "n" }, "<C-s>", "<Cmd>w<CR>")
   set("i", "<C-z>", "<C-o>u")
   set("n", "<C-z>", "u")
