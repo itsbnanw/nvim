@@ -114,12 +114,15 @@ vim.keymap.set("v", "<S-End>", "$h")
 -- cursor instead and keep the column. String rhs cannot compute the
 -- count, so these are Lua callbacks that toggle Select->Visual (<C-g>),
 -- feed the repeats, and toggle back.
+local function page_count()
+  return math.max(1, vim.api.nvim_win_get_height(0) - 2)
+end
+
 local function extend_page(down)
   -- Deferred like ensure_select: feedkeys "nx" only behaves inside a
   -- scheduled callback, not directly in a mapping.
   vim.schedule(function()
-    local n = math.max(1, vim.api.nvim_win_get_height(0) - 2)
-    local keys = down and string.rep("j", n) or string.rep("k", n)
+    local keys = page_count() .. (down and "j" or "k")
     local mode = vim.api.nvim_get_mode().mode
     local tc = vim.api.nvim_replace_termcodes
     local in_select = mode == "s" or mode == "S"
@@ -217,8 +220,7 @@ end)
 -- extension maps, through the usual select_from_insert path. "l"/""
 -- pre and the trailing adjuster mirror <S-Down>/<S-Up>.
 local function page_motion(down)
-  local n = math.max(1, vim.api.nvim_win_get_height(0) - 2)
-  return down and (string.rep("j", n) .. "h") or (string.rep("k", n) .. "l")
+  return page_count() .. (down and "jh" or "kl")
 end
 
 vim.keymap.set("i", "<S-PageDown>", function()
@@ -311,6 +313,43 @@ vim.keymap.set("v", "<End>", function()
     false
   )
 end)
+
+-- Plain PageUp/PageDown move the cursor about a page like VSCode: the
+-- caret travels and the view scrolls only enough to keep it visible
+-- (the built-in <PageDown> scrolls first and parks the cursor at the
+-- screen edge instead). "<C-o>" runs the counted j/k as a single Normal
+-- command and returns to Insert; from Normal we enter Insert first.
+local function page_goto(down)
+  local keys = "<C-o>" .. page_count() .. (down and "j" or "k")
+  vim.api.nvim_feedkeys(
+    vim.api.nvim_replace_termcodes(keys, true, true, true),
+    "n",
+    false
+  )
+end
+
+vim.keymap.set("i", "<PageDown>", function()
+  page_goto(true)
+end)
+vim.keymap.set("i", "<PageUp>", function()
+  page_goto(false)
+end)
+vim.keymap.set("n", "<PageDown>", function()
+  vim.api.nvim_feedkeys("i", "n", false)
+  page_goto(true)
+end)
+vim.keymap.set("n", "<PageUp>", function()
+  vim.api.nvim_feedkeys("i", "n", false)
+  page_goto(false)
+end)
+for _, map in ipairs({
+  { "<PageDown>", "j" },
+  { "<PageUp>", "k" },
+}) do
+  vim.keymap.set("v", map[1], function()
+    collapse_select(page_count() .. map[2])
+  end)
+end
 
 -- Delete/Backspace with a selection removes it and resumes Insert like
 -- VSCode. "_d" keeps the text out of registers and the system clipboard
